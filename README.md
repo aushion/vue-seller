@@ -1,2 +1,0 @@
-# vue-seller
-vue learning
