@@ -20,15 +20,26 @@
                     <span class="text">{{seller.supports[0].description}}</span>
                 </div>
             </div>
-          <div class="support-count" v-if="seller.supports">
+          <div class="support-count" v-if="seller.supports" @click="showDetail">
             <span class="count">{{seller.supports.length}}个</span>
             <i class="icon-keyboard_arrow_right"></i>
           </div>
         </div>
-        <div class="bulletion-wrapper">
-          <span class="icon"></span>
-          <span class="text">{{seller.bulletin}}</span>
+        <div class="bulletin-wrapper" @click="showDetail">
+          <span class="bulletin-icon"></span><span class="bulletin-text">{{seller.bulletin}}</span>
           <i class="icon-keyboard_arrow_right"></i>
+        </div>
+        <div class="detail" v-show="detailShow">
+          <div class="detail-wrapper clearfix">
+            <div class="detail-main">
+              <p>{{seller.bulletin}}</p>
+              <p>{{seller.bulletin}}</p>
+
+            </div>
+          </div>
+          <div class="detail-close" @click='hideDetail'>
+            <i class="icon-close"></i>
+          </div>
         </div>
     </div>
 </template>
@@ -38,6 +49,19 @@ export default {
   props: {
     seller: {
       type: Object
+    }
+  },
+  data () {
+    return {
+      detailShow: false
+    }
+  },
+  methods: {
+    showDetail () {
+      this.detailShow = true
+    },
+    hideDetail () {
+      this.detailShow = false
     }
   },
   created () {
@@ -134,34 +158,57 @@ export default {
         .icon-keyboard_arrow_right
           line-height 24px
           font-size: 10px
-    .bulletion-wrapper
+    .bulletin-wrapper
+      position: relative
       height: 28px
       line-height: 28px
-      vertical-align middle
+      padding 0 22px 0 12px
       background-color rgba(7,17,27,.2)
       white-space: nowrap
-      .icon
+      text-overflow: ellipsis
+      overflow: hidden
+      .bulletin-icon
         display: inline-block
+        width: 22px
+        height: 12px
+        vertical-align top
+        margin-top 8px
         bg-image('bulletin')
         background-size: 22px 12px
         background-repeat no-repeat
-        width: 22px
-        height: 12px
-        margin-left: 12px
-        margin-right: 4px
-      .text
-        display inline-block
-        line-height 12px
+      .bulletin-text
+        vertical-align top
         font-size: 10px
-        text-overflow: ellipsis
-        overflow: hidden
-        width 26em
+        margin 0 4px
       .icon-keyboard_arrow_right
-        display inline-block
-        margin-right 12px
+        position absolute
+        right 12px
+        top 8px
         font-size 10px
 
 
-
-
+    .detail
+      position: fixed
+      z-index 100
+      overflow auto
+      top: 0
+      left: 0
+      width: 100%
+      height: 100%
+      background-color rgba(7,17,27,.8)
+      .detail-wrapper
+        display: flex
+        flex-row: column
+        min-height: 100vh
+        .detail-main
+          margin-top: 64px
+          padding-bottom: 64px
+          flex: 1
+      .detail-close
+        position: relative
+        width: 32px
+        height: 32px
+        margin: -64px auto 0 auto
+        clear: both
+        font-size: 32px
 </style>
