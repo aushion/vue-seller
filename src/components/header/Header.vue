@@ -1,5 +1,8 @@
 <template>
     <div class="header">
+        <div class="background">
+          <img :src="seller.avatar" width="100%" height="100%">
+        </div>
         <div class="content-wrapper">
             <div class="avatar">
                 <img :src="seller.avatar" width="64" height="64">
@@ -22,7 +25,11 @@
             <i class="icon-keyboard_arrow_right"></i>
           </div>
         </div>
-        <div class="bulletion-wrapper"></div>
+        <div class="bulletion-wrapper">
+          <span class="icon"></span>
+          <span class="text">{{seller.bulletin}}</span>
+          <i class="icon-keyboard_arrow_right"></i>
+        </div>
     </div>
 </template>
 
@@ -43,9 +50,17 @@ export default {
 <style lang="stylus">
 @import '../../common/stylus/mixin.styl';
   .header
+    position: relative
     color: #fff
     background: rgba(7,17,27,.5)
-    blur: 10px
+    .background
+      position: absolute
+      top: 0
+      left:0
+      width: 100%
+      height: 100%
+      z-index: -1
+      filter: blur(10px)
     .content-wrapper
       position: relative
       padding: 24px 12px 18px 24px
@@ -102,9 +117,6 @@ export default {
             line-height 12px
             vertical-align top
             font-size: 12px
-
-
-
       .support-count
         position: absolute
         right: 12px
@@ -122,6 +134,34 @@ export default {
         .icon-keyboard_arrow_right
           line-height 24px
           font-size: 10px
+    .bulletion-wrapper
+      height: 28px
+      line-height: 28px
+      vertical-align middle
+      background-color rgba(7,17,27,.2)
+      white-space: nowrap
+      .icon
+        display: inline-block
+        bg-image('bulletin')
+        background-size: 22px 12px
+        background-repeat no-repeat
+        width: 22px
+        height: 12px
+        margin-left: 12px
+        margin-right: 4px
+      .text
+        display inline-block
+        line-height 12px
+        font-size: 10px
+        text-overflow: ellipsis
+        overflow: hidden
+        width 26em
+      .icon-keyboard_arrow_right
+        display inline-block
+        margin-right 12px
+        font-size 10px
+
+
 
 
 </style>
