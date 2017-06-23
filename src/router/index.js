@@ -7,9 +7,10 @@ import seller from 'components/seller/seller'
 Vue.use(Router)
 const routes = [
   { path: '/goods', component: goods },
-  { path: './ratings', component: ratings },
-  { path: './seller', component: seller }
+  { path: '/ratings', component: ratings },
+  { path: '/seller', component: seller }
 ]
 export default new Router({
-  routes: routes
+  routes: routes,
+  linkActiveClass: 'active'
 })
