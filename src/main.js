@@ -17,4 +17,5 @@ new Vue({
     App
   }
 })
+router.push('/goods')
 
