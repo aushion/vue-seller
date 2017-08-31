@@ -25,12 +25,12 @@ const ERR_OK = 0
 
 export default {
   name: 'app',
-  data () {
+  data() {
     return {
       seller: {}
     }
   },
-  created () {
+  created() {
     this.$http.get('./api/seller').then((response) => {
       if (response.data.errno === ERR_OK) {
         this.seller = response.data.data

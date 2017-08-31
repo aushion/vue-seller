@@ -2,12 +2,11 @@
   <div class="goods">
     <div class="menu-wrapper" ref="menuwrapper">
       <ul>
-        <li v-for="(item,index) in goods" @click="selectMenu(index,$event)" class="menu-item"
-            :class="{'current':currentIndex===index}">
-            <span class="text border-1px">
-              <span v-show="item.type>0" class="icon" :class="classMap[item.type]"></span>
-              {{item.name}}
-            </span>
+        <li v-for="(item,index) in goods" @click="selectMenu(index,$event)" class="menu-item" :class="{'current':currentIndex===index}">
+          <span class="text border-1px">
+            <span v-show="item.type>0" class="icon" :class="classMap[item.type]"></span>
+            {{item.name}}
+          </span>
         </li>
       </ul>
     </div>
@@ -24,10 +23,12 @@
                 <h2 class="name">{{food.name}}</h2>
                 <p class="desc">{{food.description}}</p>
                 <div class="extra">
-                  <span>月售{{food.sellCount}}份</span><span>好评率{{food.rating}}%</span>
+                  <span>月售{{food.sellCount}}份</span>
+                  <span>好评率{{food.rating}}%</span>
                 </div>
                 <div class="price">
-                  <span>￥{{food.price}}</span><span v-show="food.oldPrice" class="old-price">￥{{food.oldPrice}}</span>
+                  <span>￥{{food.price}}</span>
+                  <span v-show="food.oldPrice" class="old-price">￥{{food.oldPrice}}</span>
                 </div>
                 <div class="cartcontrol-wrapper">
                   <cartcontrol :food="food"></cartcontrol>
@@ -38,89 +39,100 @@
         </li>
       </ul>
     </div>
-    <shopcart :delivery-price='seller.deliveryPrice' :min-price="seller.minPrice"></shopcart>
+    <shopcart :select-foods='selectFoods' :delivery-price='seller.deliveryPrice' :min-price="seller.minPrice"></shopcart>
   </div>
 </template>
 
 <script>
-  const ERR_OK = 0;
-  import BScroll from 'better-scroll'
-  import shopcart from 'components/shopcart/shopcart'
-  import cartcontrol from 'components/cartControl/cartControl'
-  export default {
-    props: {
-      seller: {
-        type: Object
+const ERR_OK = 0;
+import BScroll from 'better-scroll'
+import shopcart from 'components/shopcart/shopcart'
+import cartcontrol from 'components/cartControl/cartControl'
+export default {
+  props: {
+    seller: {
+      type: Object
+    }
+  },
+  data() {
+    return {
+      goods: [],
+      listHeight: [],
+      scrollY: 0
+    }
+  },
+  computed: {
+    currentIndex() {
+      for (let i = 0; i < this.listHeight.length; i++) {
+        let height1 = this.listHeight[i];
+        let height2 = this.listHeight[i + 1];
+        if (!height2 || (this.scrollY >= height1 && this.scrollY < height2)) {
+          return i;
+        }
       }
+      return 0;
     },
-    data () {
-      return {
-        goods: [],
-        listHeight: [],
-        scrollY: 0
-      }
-    },
-    computed: {
-      currentIndex () {
-        for (let i = 0; i < this.listHeight.length; i++) {
-          let height1 = this.listHeight[i];
-          let height2 = this.listHeight[i + 1];
-          if (!height2 || (this.scrollY >= height1 && this.scrollY < height2)) {
-            return i;
+    selectFoods() {
+      let foods = [];
+      this.goods.forEach((good) => {
+        good.foods.forEach((food) => {
+          if (food.count) {
+            foods.push(food)
           }
-        }
-        return 0;
+        })
+      })
+      return foods
+    }
+  },
+  created() {
+    this.classMap = ['decrease', 'discount', 'special', 'invoice', 'guarantee'];
+    this.$http.get('./api/goods').then((response) => {
+      if (response.data.errno === ERR_OK) {
+        this.goods = response.data.data;
+        this.$nextTick(() => {
+          this._initScroll()
+          this._calculateHeight()
+        })
       }
+    })
+  },
+  methods: {
+    selectMenu(index, event) {
+      if (!event._constructed) {
+        return;
+      }
+      let foodList = this.$refs.foodswrapper.getElementsByClassName('food-list-hook');
+      let el = foodList[index]
+      this.foodsScroll.scrollToElement(el, 300)
     },
-    created () {
-      this.classMap = ['decrease', 'discount', 'special', 'invoice', 'guarantee'];
-      this.$http.get('./api/goods').then((response) => {
-        if (response.data.errno === ERR_OK) {
-          this.goods = response.data.data;
-          this.$nextTick(() => {
-            this._initScroll()
-            this._calculateHeight()
-          })
-        }
+    _initScroll() {
+      this.meunScroll = new BScroll(this.$refs.menuwrapper, {
+        click: true
+      })
+      this.foodsScroll = new BScroll(this.$refs.foodswrapper, {
+        click: true,
+        probeType: 3
+      });
+
+      this.foodsScroll.on('scroll', (pos) => {
+        this.scrollY = Math.abs(Math.round(pos.y))
       })
     },
-    methods: {
-      selectMenu (index, event) {
-        if (!event._constructed) {
-          return;
-        }
-        let foodList = this.$refs.foodswrapper.getElementsByClassName('food-list-hook');
-        let el = foodList[index]
-        this.foodsScroll.scrollToElement(el, 300)
-      },
-      _initScroll () {
-        this.meunScroll = new BScroll(this.$refs.menuwrapper, {
-          click: true
-        })
-        this.foodsScroll = new BScroll(this.$refs.foodswrapper, {
-          click: true,
-          probeType: 3
-        });
-
-        this.foodsScroll.on('scroll', (pos) => {
-          this.scrollY = Math.abs(Math.round(pos.y))
-        })
-      },
-      _calculateHeight () {
-        let foodList = this.$refs.foodswrapper.getElementsByClassName('food-list-hook');
-        let height = 0;
+    _calculateHeight() {
+      let foodList = this.$refs.foodswrapper.getElementsByClassName('food-list-hook');
+      let height = 0;
+      this.listHeight.push(height)
+      for (let i = 0; i < foodList.length; i++) {
+        height += foodList[i].clientHeight
         this.listHeight.push(height)
-        for (let i = 0; i < foodList.length; i++) {
-          height += foodList[i].clientHeight
-          this.listHeight.push(height)
-        }
       }
-    },
-    components: {
-      shopcart: shopcart,
-      cartcontrol: cartcontrol
     }
+  },
+  components: {
+    shopcart: shopcart,
+    cartcontrol: cartcontrol
   }
+}
 </script>
 
 <style lang="stylus">
@@ -232,6 +244,6 @@
               font-weight: 700
           .cartcontrol-wrapper
             position absolute
-            right 1
+            right 1px
 
 </style>
